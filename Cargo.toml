@@ -1,0 +1,15 @@
+[package]
+name = "simple_web_server"
+version = "0.1.0"
+authors = ["trionprog <trionprog@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+#actix-web = "0.7.19"
+futures = "*"
+failure = "*"
+#actix-multipart = { git="https://github.com/actix/actix-web.git" }
+actix-web = "1.0.0-alpha.4"
+actix-multipart = { git="https://github.com/actix/actix-web.git" }
+env_logger = "0.6"
+url = "1.7.2"
