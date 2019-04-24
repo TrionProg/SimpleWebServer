@@ -1,8 +1,10 @@
 
-use actix_multipart::{Field, Item, Multipart, MultipartError};
+use actix_multipart::{Field, Multipart, MultipartError};
 use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer, Responder};
 use futures::future::{err, ok, Either, IntoFuture};
 use futures::{Future, Stream};
+
+use actix_web::HttpRequest;
 /*
 use failure::Error;
 
@@ -39,10 +41,13 @@ impl ImageApp {
         multipart: Multipart,
         app: web::Data<ImageApp>,
     ) -> Box<Future<Item = HttpResponse, Error = Error>> {//impl Future<Item = HttpResponse, Error = Error> {
-        Box::new(multipart
+        let branch = multipart
             .map_err(error::ErrorInternalServerError)
-            .map(Self::read_form)
+            .map(|field| Self::read_field(field).into_stream())
+            //...map(Self::read_form)
             .flatten()
+            .filter(|field| field.is_some())
+            .map(|field| field.unwrap())
             .collect()
             .and_then(move|fields| {
                 //тут мы должны подготовить данные и вызывать апи, и уже после вызова мы можем венуть response
@@ -90,15 +95,16 @@ impl ImageApp {
                 app.process_put_image(fields).then(move |result|{
                     match result {
                         Ok(response) => HttpResponse::Ok().body(response),
-                        Err(e) => HttpResponse::Ok().body("error")
+                        Err(e) => HttpResponse::Ok().body(format!("{}", e))
                     }
                 })
             })
             .map_err(|e| {
                 println!("failed: {}", e);
                 e
-            })
-        )
+            });
+
+        Box::new(branch)
 
         /*
         multipart
@@ -129,7 +135,7 @@ impl ImageApp {
         */
     }
 
-    fn read_field(field: Field) -> impl Future<Item = (String, Vec<u8>), Error = Error> {
+    fn read_field(field: Field) -> impl Future<Item = Option<(String, Vec<u8>)>, Error = Error> {
         /*
         ok(field).and_then(|field|{
             match field.content_disposition() {
@@ -163,20 +169,21 @@ impl ImageApp {
                     println!("read_field failed, {:?}", e);
                     error::ErrorInternalServerError(e)
                 }).and_then(|buffer|{
-                    println!("yoho");
-
-                    Ok((field_name, buffer))
+                    if buffer.len() > 0 {
+                        Ok(Some((field_name, buffer)))
+                    }else{
+                        Ok(None)
+                    }
                 });
 
-                Either::B(
-                    a
-                )
+                Either::B(Either::A(a))
             },
-            None => return Either::A(err(error::ErrorBadGateway("aaa2"))),//TODO
+            None => Either::B(Either::B(ok(None)))
         }
     }
 
-    fn read_form(item: Item) -> Box<Stream<Item = (String, Vec<u8>), Error = Error>> {
+    /*
+    fn read_form(item: Item) -> Box<Stream<Item = Option<(String, Vec<u8>)>, Error = Error>> {
         match item {
             Item::Field(field) => Box::new(Self::read_field(field).into_stream()),
             Item::Nested(mp) => Box::new(
@@ -186,6 +193,7 @@ impl ImageApp {
             ),
         }
     }
+    */
 
     fn process_put_image(&self, fields:Vec<(String, Vec<u8>)>) -> impl Future<Item = String, Error = Error> {
         let api = self.api.clone();
@@ -349,7 +357,7 @@ impl ImageApp {
     */
 
         /*
-        pub fn put_image(counter: web::Data<ImageApp>,) -> impl Responder {
+        pub fn put_image(app: web::Data<ImageApp>,) -> impl Responder {
             println!("sadsa");
             //let answer = String::extract(req);
 
@@ -358,7 +366,8 @@ impl ImageApp {
         }
         */
 
-    pub fn show_image(counter: web::Data<ImageApp>) -> impl Responder {
+    //TODO to upload_image_form
+    pub fn show_image(app: web::Data<ImageApp>) -> impl Responder {
         let body = r#"<html>
         <head><title>Upload Test</title></head>
         <body>
@@ -374,4 +383,72 @@ impl ImageApp {
 
         HttpResponse::Ok().content_type("text/html").body(body)
     }
+
+    pub fn get_image(req: HttpRequest, app: web::Data<ImageApp>) -> Box<Future<Item = HttpResponse, Error = Error>> {
+        let name = req.match_info().query("name");
+
+        if name.len() > 0 {
+            let api = app.api.clone();
+
+            let branch = ImageApi::get_image(api, name).then(move |result|{
+                match result {
+                    Ok(content) => HttpResponse::Ok().content_type("image/png").body(content),
+                    Err(e) => HttpResponse::Ok().body("error")
+                }
+            });
+
+            Box::new(branch)
+        }else{
+            let branch = HttpResponse::Ok().body("empty request");//TODO
+
+            Box::new(ok(branch))
+        }
+    }
+
+    /*
+    fn process_get_image(&self, name:&str) -> impl Future<Item = Vec<u8>, Error = Error> {
+        let api = self.api.clone();
+
+            /*
+        ok(()).and_then(
+
+        )
+
+        Either::B(Either::A(ImageApi::put_image(api, PutImageInput::Content(content)).then(|result|{
+            match result {
+                Ok(response) => Ok(response),
+                Err(e) => Err(Error::from(e))
+            }
+        })))
+            */
+
+        ImageApi::get_image(api, name).then(move |result|{
+            match result {
+                Ok(content) => Ok(content),//TODO with format of image
+                Err(e) => Err(Error::from(e))
+            }
+        })
+
+    }
+    */
+
+    /*
+    pub fn get_image(app: web::Data<ImageApp>) -> impl Responder {
+        let name = Path::<String>::extract();
+        let body = r#"<html>
+        <head><title>Upload Test</title></head>
+        <body>
+            <form target="/" method="post" enctype="multipart/form-data">
+            <input type="text" name="text" size="40">
+            <p><input type="radio" name="answer" value="a1">Офицерский состав<Br>
+  <input type="radio" name="answer" value="a2">Операционная система<Br>
+                <input type="file" name="file"/>
+                <input type="submit" value="Submit"></button>
+            </form>
+        </body>
+        </html>"#;
+
+        HttpResponse::Ok().content_type("text/html").body(body)
+    }
+    */
 }

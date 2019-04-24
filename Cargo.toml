@@ -9,7 +9,10 @@ edition = "2018"
 futures = "*"
 failure = "*"
 #actix-multipart = { git="https://github.com/actix/actix-web.git" }
+actix-rt = "0.2.2"
+#actix-web = { path="../actix-web" }
 actix-web = "1.0.0-alpha.4"
-actix-multipart = { git="https://github.com/actix/actix-web.git" }
+actix-multipart = { path="../actix-web/actix-multipart" }
 env_logger = "0.6"
 url = "1.7.2"
+base64 = "0.10.1"

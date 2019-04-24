@@ -9,26 +9,26 @@ pub mod image_app;
 use image_app::ImageApp;
 
 
-//use std::cell::Cell;
+use std::cell::Cell;
 use std::fs::{self};
 use std::io::Write;
 
-use actix_multipart::{Field, Item, Multipart, MultipartError};
+use actix_multipart::{Field, Multipart, MultipartError};
 use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
 use futures::future::{err, Either};
 use futures::{Future, Stream};
 
 /*
+
 pub struct AppState {
     pub counter: Cell<usize>,
 }
-*/
 
 pub fn save_file(field: Field) -> impl Future<Item = i64, Error = Error> {
     let file_path_string = "upload.png";
     let mut file = match fs::File::create(file_path_string) {
         Ok(file) => file,
-        Err(e) => return Either::A(err(error::ErrorInternalServerError(e)))
+        Err(e) => return Either::A(err(error::ErrorInternalServerError(e))),
     };
     Either::B(
         field
@@ -47,27 +47,16 @@ pub fn save_file(field: Field) -> impl Future<Item = i64, Error = Error> {
     )
 }
 
-pub fn handle_multipart_item(item: Item) -> Box<Stream<Item = i64, Error = Error>> {
-    match item {
-        Item::Field(field) => Box::new(save_file(field).into_stream()),
-        Item::Nested(mp) => Box::new(
-            mp.map_err(error::ErrorInternalServerError)
-                .map(handle_multipart_item)
-                .flatten(),
-        ),
-    }
-}
-
 pub fn upload(
     multipart: Multipart,
-    counter: web::Data<ImageApp>,
+    counter: web::Data<Cell<usize>>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
-    //counter.set(counter.get() + 1);
-    //println!("{:?}", counter.get());
+    counter.set(counter.get() + 1);
+    println!("{:?}", counter.get());
 
     multipart
         .map_err(error::ErrorInternalServerError)
-        .map(handle_multipart_item)
+        .map(|field| save_file(field).into_stream())
         .flatten()
         .collect()
         .map(|sizes| HttpResponse::Ok().json(sizes))
@@ -77,21 +66,29 @@ pub fn upload(
         })
 }
 
-fn index() -> HttpResponse {
-    let html = r#"<html>
-        <head><title>Upload Test</title></head>
-        <body>
-            <form target="/" method="post" enctype="multipart/form-data">
-                <input type="file" name="file"/>
-                <input type="submit" value="Submit"></button>
-            </form>
-        </body>
-    </html>"#;
-
-    HttpResponse::Ok().body(html)
-}
+*/
 
 fn main() -> std::io::Result<()> {
+    /*
+    use actix_rt::System;
+    use actix_web::client::Client;
+
+    System::new("test").block_on(lazy(|| {
+        let mut client = Client::default();
+
+        client.get("http://www.rust-lang.org") // <- Create request builder
+            .header("User-Agent", "Actix-web")
+            .send()                             // <- Send http request
+            .map_err(|_| ())
+            .and_then(|response| {              // <- server http response
+                println!("Response: {:?}", response);
+                Ok(())
+            })
+    }));
+
+    Ok(())
+    */
+
     std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
     env_logger::init();
 
@@ -116,6 +113,9 @@ fn main() -> std::io::Result<()> {
                 web::resource("/")
                     .route(web::get().to(ImageApp::show_image))
                     .route(web::post().to_async(ImageApp::put_image)),
+            ).service(
+            web::resource("/get_image/{name}")
+                .route(web::get().to(ImageApp::get_image))
             )
     })
         .bind("127.0.0.1:8080")?
