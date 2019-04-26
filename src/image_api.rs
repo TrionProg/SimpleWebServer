@@ -5,6 +5,8 @@ use failure::Error;
 use failure::err_msg;
 //use actix_web::Error;
 
+use crate::errors::*;
+
 use std::sync::Arc;
 use std::sync::Mutex;
 //use actix_net::service::ServiceExt;
@@ -58,7 +60,7 @@ impl ImageApi {
                             Ok(_) =>
                                 Either::B(Either::B(Either::A(Self::download_image(self_ref, text.as_str())))),
                             Err(_) =>
-                                Either::B(Either::B(Either::B(err(err_msg("not base 64")))))//TODO
+                                Either::B(Either::B(Either::B(err(err_msg(TextNotBase64Error)))))
                         }
                     }
                 }
@@ -85,16 +87,15 @@ impl ImageApi {
 
         let mut file = match fs::File::create(file_path.as_str()) {
             Ok(file) => file,
-            Err(e) => return Either::A(err(err_msg("can not save image"))), //TODO
+            Err(e) => return Either::A(err(err_msg( CanNotCreateImageFileError::from((file_path, e)) ))),
         };
 
         match file.write_all(content.as_ref()) {
             Ok(_) => (), //TODO
-            Err(e) => return Either::A(err(err_msg("can not save image"))), //TODO
+            Err(e) => return Either::A(err(err_msg(CanNotWriteImageFileError::from((file_path, e)) ))),
         }
 
-        Either::B(ok(format!("Image has been saved as {} <br>", file_name))) //TODO
-
+        Either::B(ok(format!("Image has been saved as {}", file_name))) //TODO
     }
 
     fn is_image_base64(text:&str) -> Option<(ImageFormat, &str)> {
@@ -102,7 +103,7 @@ impl ImageApi {
             let (a, b) = text.split_at("data:image/png;base64,".len());
 
             Some((ImageFormat::Png, b))
-        }else if text.starts_with("data:image/jpeg;base64,") {//TODO try to get type.. and then..
+        }else if text.starts_with("data:image/jpeg;base64,") {
             let (a, b) = text.split_at("data:image/jpeg;base64,".len());
 
             Some((ImageFormat::Jpeg, b))
@@ -116,7 +117,7 @@ impl ImageApi {
 
         match decode(content_base64) {
             Ok(content) => Either::A(Self::upload_image(self_ref, content)),
-            Err(e) => Either::B(err(err_msg("not base 64"))) //TODO
+            Err(e) => Either::B(err(err_msg(TextNotBase64Error)))
         }
     }
 
@@ -128,6 +129,8 @@ impl ImageApi {
             .max_redirects(30)
             .header("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36")
             .finish();
+
+        let url_string = url.to_string();
 
         client.get(url)
         //client.get("http://192.168.1.132:8080/get_image/3") // <- Create request builder
@@ -147,16 +150,18 @@ impl ImageApi {
                                         format = Some(ImageFormat::Png);
                                     }else if val == "image/jpeg" {
                                         format = Some(ImageFormat::Jpeg);
+                                    }else{
+                                        return Either::B(err(err_msg(UnsupportedImageFormatError)));
                                     }
                                 }else if key == "content-length" {
                                     match std::str::from_utf8(val.as_ref()) {
                                         Ok(number_string) => {
-                                            match number_string.parse::<usize>() {//TODO fix to_string
+                                            match number_string.parse::<usize>() {
                                                 Ok(len) => content_length=1000000,
-                                                Err(_) => return Either::B(err(err_msg("not number")))
+                                                Err(_) => return Either::B(err(err_msg( CanNotParseAsNumberError::from((number_string)) )))
                                             }
                                         },
-                                        Err(_) => return Either::B(err(err_msg("not utf-8")))
+                                        Err(_) => return Either::B(err(err_msg(TextNotUTF8Error)))
                                     }
                                 }
                             }
@@ -177,16 +182,14 @@ impl ImageApi {
 
                                     Either::A(fut)
                                 },
-                                None => Either::B(err(err_msg("not image")))
+                                None => Either::B(err(err_msg(UnsupportedImageFormatError)))
                             }
                         }else{
-                            Either::B(err(err_msg("status not success")))
+                            Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, response.status())) )))
                         }
                     },
-                    Err(e) =>{
-                        println!("{}",e);
-                        Either::B(err(err_msg("can not load url")))
-                    }
+                    Err(e) =>
+                        Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, format!("{}",e))) )))
                 }
             })
     }
@@ -195,13 +198,13 @@ impl ImageApi {
         Box::new(Self::load_image(self_ref, name))
     }
 
-    fn load_image(self_ref:ImageApiRef, name:&str) -> impl Future<Item = Vec<u8>, Error = Error> + Send + 'static {
+    fn load_image(self_ref:ImageApiRef, name:&str) -> impl Future<Item = Vec<u8>, Error = Error> {
         let file_name = format!("Image_{}.png", name);
         let file_path = format!("files/{}", file_name);
 
         let mut file = match fs::File::open(file_path.as_str()) {
             Ok(file) => file,
-            Err(e) => return Either::A(err(err_msg("image does not exists"))), //TODO
+            Err(e) => return Either::A(err(err_msg( CanNotReadImageFileError::from((file_path, e)) ))),
         };
 
         //TODO BufRead
@@ -209,7 +212,25 @@ impl ImageApi {
         let mut content = Vec::new();
         match file.read_to_end(&mut content) {
             Ok(_) => Either::B(ok(content)),
-            Err(e) => Either::A(err(err_msg("can not load image"))) //TODO
+            Err(e) => Either::A(err(err_msg( CanNotReadImageFileError::from((file_path, e)) ))),
         }
+    }
+
+    fn get_images_list(self_ref:ImageApiRef) -> impl Future<Item = Vec<usize>, Error = Error> {
+        let last_image_index = {
+            let last_image_index_guard = self_ref.last_image_index.lock().unwrap();
+
+            *last_image_index_guard
+        };
+
+        //let images_list = (0..last_image_index)
+
+        let mut images_list = Vec::with_capacity(last_image_index);
+
+        for i in 0..last_image_index {
+            images_list.push(i);
+        }
+
+        ok(images_list)
     }
 }

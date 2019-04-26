@@ -1,12 +1,20 @@
 extern crate actix_web;
 extern crate futures;
+
+//#[macro_use]
 extern crate failure;
+
+#[macro_use]
+extern crate failure_derive;
+
 
 pub mod image_api;
 use image_api::ImageApi;
 
 pub mod image_app;
 use image_app::ImageApp;
+
+pub mod errors;
 
 
 use std::cell::Cell;
