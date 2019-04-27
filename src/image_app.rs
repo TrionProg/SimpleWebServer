@@ -49,12 +49,36 @@ impl ImageApp {
             .map(|field| field.unwrap())
             .collect()
             .and_then(move|fields| {
-                app.process_put_image(fields).then(move |result|{
-                    match result {
-                        Ok(response) => HttpResponse::Ok().body(response),
-                        Err(e) => HttpResponse::Ok().body(format!("{}", e))
-                    }
-                })
+                use futures::stream::iter_ok;
+
+                iter_ok::<_, ()>(fields)
+                    .map(move |field|{
+                        app.process_put_image(field).then(|answer_result|{
+                            match answer_result {
+                                Ok(answer) => Ok(Ok(answer)),
+                                Err(error) => Ok(Err(error))
+                            }
+                        })
+                        .into_stream()
+                    })
+                    .flatten()
+                    .collect()
+                    .and_then(|answers_result|{
+                        let mut errors = Vec::new();
+                        let mut answers = Vec::new();
+
+                        for answer_result in answers_result {
+                            match answer_result {
+                                Ok(Some(answer)) => answers.push(answer),
+                                Ok(None) => {},
+                                Err(e) => errors.push(e)
+                            }
+                        }
+
+                        let page = Self::create_page(answers, errors);
+
+                        HttpResponse::Ok().content_type("text/html").body(page)
+                    })
             })
             .map_err(|e| {
                 println!("failed: {}", e);
@@ -97,76 +121,76 @@ impl ImageApp {
         }
     }
 
-    fn process_put_image(&self, fields:Vec<(String, Vec<u8>)>) -> impl Future<Item = String, Error = Error> {
+    fn process_put_image(&self, (name, value):(String, Vec<u8>)) -> impl Future<Item = Option<String>, Error = failure::Error> {
         let api = self.api.clone();
 
-        ok(fields).and_then(|fields|{
-            let mut text = None;
-            let mut content = None;
+        use failure::err_msg;
 
-            for (name, value) in fields {
-                if name.as_str() == "text" {//TODO to static/const
-                    match String::from_utf8(value) {
-                        Ok(value) => {
-                            if value.len() > 0 {
-                                text = Some(value)
-                            }
-                        },
-                        Err(_) => return Err(error::ErrorBadGateway("aaa==")),//TODO
-                    }
-                }else if name.as_str() == "file" {
+        if name.as_str() == "text" {//TODO to static/const
+            match String::from_utf8(value) {
+                Ok(value) => {
                     if value.len() > 0 {
-                        content = Some(value);
+                        let fut = ImageApi::put_image(api, PutImageInput::Text(value)).map(|answer| Some(answer));
+
+                        Either::A(Either::A(Either::A(fut)))
+                    }else{
+                        Either::A(Either::B(ok(None)))
                     }
-                }
+                },
+                Err(_) => return Either::B(err(err_msg("aaa==")))//TODO
+            }
+        }else if name.as_str() == "file" {
+            if value.len() > 0 {
+                let fut = ImageApi::put_image(api, PutImageInput::Content(value)).map(|answer| Some(answer));
+                Either::A(Either::A(Either::B(fut)))
+            }else{
+                Either::A(Either::B(ok(None)))
+            }
+        }else{
+            Either::A(Either::B(ok(None)))
+        }
+    }
+
+    fn create_page(answers:Vec<String>, errors:Vec<failure::Error>) -> String {
+        let mut page = String::new();
+
+        page.push_str(include_str!("../html/page_begin.html"));
+
+        if answers.len() > 0 {
+            page.push_str("<div class=\"success\">");
+
+            for answer in answers.iter() {
+                page.push_str(answer.as_str());
+                page.push_str("<br>");
             }
 
-            Ok((text, content))
-        }).and_then(|(text, content)|{
-            match content {
-                Some(content) => {
-                    Either::B(Either::A(ImageApi::put_image(api, PutImageInput::Content(content)).then(|result|{
-                        match result {
-                            Ok(response) => Ok(response),
-                            Err(e) => Err(Error::from(e))
-                        }
-                    })))
-                },
-                None => {
-                    match text {
-                        Some(text) => {
-                            Either::B(Either::B(ImageApi::put_image(api, PutImageInput::Text(text)).then(|result|{
-                                match result {
-                                    Ok(response) => Ok(response),
-                                    Err(e) => Err(Error::from(e))
-                                }
-                            })))
-                        }
-                        None => {
-                            Either::A(err(error::ErrorBadGateway("bbb")))//TODO
-                        }
-                    }
-                }
+            page.push_str("</div><br>");
+        }
+
+        if errors.len() > 0 {
+            page.push_str("<div class=\"error\">");
+
+            for error in errors.iter() {
+                let error_string = format!("{}", error);
+                page.push_str(error_string.as_str());
+                page.push_str("<br>");
             }
-        })
+
+            page.push_str("</div><br>");
+        }
+
+        page.push_str(include_str!("../html/form.html"));
+
+        page.push_str(include_str!("../html/page_end.html"));
+
+        page
     }
 
     //TODO to upload_image_form
     pub fn show_image(app: web::Data<ImageApp>) -> impl Responder {
-        let body = r#"<html>
-        <head><title>Upload Test</title></head>
-        <body>
-            <form target="/" method="post" enctype="multipart/form-data">
-            <input type="text" name="text" size="40">
-            <p><input type="radio" name="answer" value="a1">Офицерский состав<Br>
-  <input type="radio" name="answer" value="a2">Операционная система<Br>
-                <input type="file" name="file"/>
-                <input type="submit" value="Submit"></button>
-            </form>
-        </body>
-        </html>"#;
+        let page = Self::create_page(Vec::new(), Vec::new());
 
-        HttpResponse::Ok().content_type("text/html").body(body)
+        HttpResponse::Ok().content_type("text/html").body(page)
     }
 
     pub fn get_image(req: HttpRequest, app: web::Data<ImageApp>) -> Box<Future<Item = HttpResponse, Error = Error>> {
