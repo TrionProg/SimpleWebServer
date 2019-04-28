@@ -7,6 +7,100 @@ extern crate failure;
 #[macro_use]
 extern crate failure_derive;
 
+use libc::{c_void, c_char, size_t, c_int};
+
+#[repr(C)]
+pub struct cv_return_value_void_X {
+    pub error_code: i32,
+    pub error_msg: *const c_char,
+    pub result: *mut c_void
+}
+
+
+//#[link(name = "opencv_world346", kind = "static")]
+#[link(name = "target/debug/opencv_world340")]
+extern "C"{
+    pub fn cvLoadImage(filename: *const c_char, flags: i32) -> *mut c_void;
+    //pub fn cv_imgcodecs_cv_imwrite_String_filename_Mat_img_VectorOfint_params(filename: *const c_char, flags: i32) -> Mat;//*mut c_void;
+    //pub fn imread(filename: *const c_char, flags: i32) -> Mat;//*mut c_void;
+    pub fn cvSaveImage(filename: *const c_char, arr: *const c_void, param: *const c_int) -> c_int;
+    //pub fn cv_imgcodecs_cv_imread_String_filename_int_flags(filename: *const c_char, flags: i32) -> cv_return_value_void_X;
+    //fn snappy_max_compressed_length(source_length: size_t) -> size_t;
+    pub fn cvResize(src: *const c_void, dst: *const c_void, interpolation:c_int) -> c_void;
+    pub fn cvCreateImage(size:Size, depth:c_int, channels:c_int) -> *mut c_void;
+}
+
+#[allow(dead_code)]
+pub struct Mat {
+    #[doc(hidden)] pub ptr: *mut c_void
+}
+
+#[repr(C)]
+pub struct Size {
+    pub width: i32,
+    pub height: i32,
+}
+
+use std::ffi::{CString, CStr};
+
+fn convert() {
+    unsafe {
+        let file_name = "files/Image_1.png";
+
+        let rv = cvLoadImage(CString::new(file_name).unwrap().as_ptr(), 1);
+
+        println!("-1");
+        let mini = cvCreateImage ( Size{width:200, height:100}, 8, 3 );
+
+        println!("-2");
+        cvResize(rv, mini, 1);
+
+        println!("aaa {}", rv as usize);
+
+        let p:[c_int;3] = [
+            1, 10, 0
+        ];
+
+        /*
+        c_int p[3];
+        IplImage * img = cvLoadImage("test.jpg");
+
+        p[0] = CV_IMWRITE_JPEG_QUALITY;
+        p[1] = 10;
+        p[2] = 0;
+        */
+
+        //let res = cvSaveImage(CString::new("hello.png").unwrap().as_ptr(), rv, p.as_ptr());
+        let res = cvSaveImage(CString::new("files/mini.png").unwrap().as_ptr(), mini, 0 as *const c_int);
+
+        println!("{}", res);
+
+    }
+}
+
+/*
+pub fn imread2(filename:&str, flags: i32) -> Result<Mat,String> {
+    unsafe {
+        println!("--");
+        let rv = cvLoadImage(CString::new(filename).unwrap().as_ptr(), flags);
+
+        println!("aaa {}", rv as usize);
+
+        Ok(Mat{ ptr: rv })
+
+        /*
+        if rv.error_msg as i32 != 0i32 {
+            let v = CStr::from_ptr(rv.error_msg).to_bytes().to_vec();
+            ::libc::free(rv.error_msg as *mut c_void);
+            return Err(String::from_utf8(v).unwrap())
+        }
+
+        Ok(Mat{ ptr: rv.result })
+        */
+    }
+}
+*/
+
 
 pub mod image_api;
 use image_api::ImageApi;
@@ -77,7 +171,15 @@ pub fn upload(
 */
 
 fn main() -> std::io::Result<()> {
+
     /*
+    use std::mem::transmute;
+
+    unsafe {
+        let a = std::mem::transmute::<fn cvLoadImage(filename: *const c_char, flags: i32) -> cv_return_value_void_X, usize > (cvLoadImage);
+    }
+    */
+        /*
     use actix_rt::System;
     use actix_web::client::Client;
 
@@ -99,6 +201,17 @@ fn main() -> std::io::Result<()> {
 
     std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
     env_logger::init();
+
+
+    convert();
+    /*
+    match imread2("files/Image_1.png", 1) {
+        Ok(_) => {},
+        Err(e) => println!("error {}", e)
+    }
+    */
+
+    println!("Contin");
 
     let image_api_ref = ImageApi::new_ref();
 
