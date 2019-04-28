@@ -1,29 +1,18 @@
 
 use actix_multipart::{Field, Multipart, MultipartError};
-use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer, Responder};
+use actix_web::{error, middleware, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::Error as ActixError;
+
 use futures::future::{err, ok, Either, IntoFuture};
 use futures::{Future, Stream};
 
-use actix_web::HttpRequest;
-/*
 use failure::Error;
 
-use actix_web::{web, App, HttpRequest, HttpResponse, Responder};
-use actix_multipart::{Field, Item, Multipart, MultipartError};
-use futures::future::{err, Either};
-use futures::{Future, Stream};
-use actix_web::{error};
-*/
+use actix_web::HttpRequest;
 
 use crate::image_api::ImageApi;
 use crate::image_api::ImageApiRef;
 use crate::image_api::PutImageInput;
-
-/*
-use std::fs;
-use std::io::Write;
-use core::borrow::Borrow;
-*/
 
 #[derive(Clone)]
 pub struct ImageApp {
@@ -40,7 +29,7 @@ impl ImageApp {
     pub fn put_image(
         multipart: Multipart,
         app: web::Data<ImageApp>,
-    ) -> Box<Future<Item = HttpResponse, Error = Error>> {//impl Future<Item = HttpResponse, Error = Error> {
+    ) -> Box<Future<Item = HttpResponse, Error = ActixError>> {
         let branch = multipart
             .map_err(error::ErrorInternalServerError)
             .map(|field| Self::read_field(field).into_stream())
@@ -51,9 +40,12 @@ impl ImageApp {
             .and_then(move|fields| {
                 use futures::stream::iter_ok;
 
+                let app_copy = app.clone();
+                let app_copy2 = app.clone();
+
                 iter_ok::<_, ()>(fields)
                     .map(move |field|{
-                        app.process_put_image(field).then(|answer_result|{
+                        app_copy.process_put_image(field).then(|answer_result|{
                             match answer_result {
                                 Ok(answer) => Ok(Ok(answer)),
                                 Err(error) => Ok(Err(error))
@@ -63,7 +55,7 @@ impl ImageApp {
                     })
                     .flatten()
                     .collect()
-                    .and_then(|answers_result|{
+                    .and_then(move |answers_result|{
                         let mut errors = Vec::new();
                         let mut answers = Vec::new();
 
@@ -75,9 +67,12 @@ impl ImageApp {
                             }
                         }
 
-                        let page = Self::create_page(answers, errors);
-
-                        HttpResponse::Ok().content_type("text/html").body(page)
+                        app_copy2.create_page(Vec::new(), Vec::new()).then(|page_result|{
+                            match page_result {
+                                Ok(page) => HttpResponse::Ok().content_type("text/html").body(page),
+                                Err(error) => HttpResponse::Ok().content_type("text/html").body(format!("Error: {}",error))
+                            }
+                        })
                     })
             })
             .map_err(|e| {
@@ -88,15 +83,13 @@ impl ImageApp {
         Box::new(branch)
     }
 
-    fn read_field(field: Field) -> impl Future<Item = Option<(String, Vec<u8>)>, Error = Error> {
+    fn read_field(field: Field) -> impl Future<Item = Option<(String, Vec<u8>)>, Error = ActixError> {
         match field.content_disposition() {
             Some(disposition) => {
                 let field_name =match disposition.get_name() {
                     Some(name) => name.to_string(),
                     None => return Either::A(err(error::ErrorBadGateway("aaa1"))),//TODO
                 };
-
-                println!("{}", field_name);
 
                 let a = field.fold(Vec::new(), move |mut buffer, bytes| {
                     buffer.extend_from_slice(bytes.as_ref());
@@ -121,7 +114,7 @@ impl ImageApp {
         }
     }
 
-    fn process_put_image(&self, (name, value):(String, Vec<u8>)) -> impl Future<Item = Option<String>, Error = failure::Error> {
+    fn process_put_image(&self, (name, value):(String, Vec<u8>)) -> impl Future<Item = Option<String>, Error = Error> {
         let api = self.api.clone();
 
         use failure::err_msg;
@@ -151,49 +144,85 @@ impl ImageApp {
         }
     }
 
-    fn create_page(answers:Vec<String>, errors:Vec<failure::Error>) -> String {
-        let mut page = String::new();
+    fn create_page(&self, answers:Vec<String>, errors:Vec<failure::Error>) -> impl Future<Item = String, Error = Error> {
+        let api = self.api.clone();
 
-        page.push_str(include_str!("../html/page_begin.html"));
+        ok(String::new()).and_then(move |mut page|{
+            page.push_str(include_str!("../html/page_begin.html"));
 
-        if answers.len() > 0 {
-            page.push_str("<div class=\"success\">");
+            if answers.len() > 0 {
+                page.push_str("<div class=\"success\">");
 
-            for answer in answers.iter() {
-                page.push_str(answer.as_str());
-                page.push_str("<br>");
+                for answer in answers.iter() {
+                    page.push_str(answer.as_str());
+                    page.push_str("<br>");
+                }
+
+                page.push_str("</div><br>");
             }
 
-            page.push_str("</div><br>");
-        }
+            if errors.len() > 0 {
+                page.push_str("<div class=\"error\">");
 
-        if errors.len() > 0 {
-            page.push_str("<div class=\"error\">");
+                for error in errors.iter() {
+                    let error_string = format!("{}", error);
+                    page.push_str(error_string.as_str());
+                    page.push_str("<br>");
+                }
 
-            for error in errors.iter() {
-                let error_string = format!("{}", error);
-                page.push_str(error_string.as_str());
-                page.push_str("<br>");
+                page.push_str("</div><br>");
             }
 
-            page.push_str("</div><br>");
-        }
+            page.push_str(include_str!("../html/form.html"));
 
-        page.push_str(include_str!("../html/form.html"));
+            Ok(page)
+        }).and_then(move |mut page| {
+            ImageApi::get_images_list(api).then(move |image_list_result|{
+                match image_list_result {
+                    Ok(image_list) => Ok((page, image_list)),
+                    Err(error) => {
+                        page.push_str("<div class=\"error\">");
 
-        page.push_str(include_str!("../html/page_end.html"));
+                        let error_string = format!("{}", error);
+                        page.push_str(error_string.as_str());
 
-        page
+                        page.push_str("</div><br>");
+
+                        Ok((page, Vec::new()))
+                    }
+                }
+            })
+        }).and_then(|(mut page, image_list)|{
+            for image_index in image_list.iter().rev() {
+                page.push_str("<div class=\"image_box\">");
+
+                let image_name = format!("Image_{}", image_index);
+                page.push_str(image_name.as_str());
+
+                let image_tag = format!("<img width=\"400px\" src=\"get_image/{0}\" alt=\"Image {0}\">",image_index);
+                page.push_str(image_tag.as_str());
+
+                page.push_str("</div>");
+            }
+
+            page.push_str(include_str!("../html/page_end.html"));
+
+            Ok(page)
+        })
     }
 
-    //TODO to upload_image_form
-    pub fn show_image(app: web::Data<ImageApp>) -> impl Responder {
-        let page = Self::create_page(Vec::new(), Vec::new());
+    pub fn show_image(app: web::Data<ImageApp>) -> Box<Future<Item = HttpResponse, Error = ActixError>> {
+        let branch = app.create_page(Vec::new(), Vec::new()).then(|page_result|{
+            match page_result {
+                Ok(page) => HttpResponse::Ok().content_type("text/html").body(page),
+                Err(error) => HttpResponse::Ok().content_type("text/html").body(format!("Error: {}",error))
+            }
+        });
 
-        HttpResponse::Ok().content_type("text/html").body(page)
+        Box::new(branch)
     }
 
-    pub fn get_image(req: HttpRequest, app: web::Data<ImageApp>) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    pub fn get_image(req: HttpRequest, app: web::Data<ImageApp>) -> Box<Future<Item = HttpResponse, Error = ActixError>> {
         let name = req.match_info().query("name");
 
         if name.len() > 0 {

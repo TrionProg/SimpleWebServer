@@ -71,7 +71,7 @@ impl ImageApi {
     }
 
     fn upload_image(self_ref:ImageApiRef, content:Vec<u8>) -> impl Future<Item = String, Error = Error> + Send + 'static {
-        //TODO take format of image on upload(in
+        //TODO take format of image on upload
 
         let index = {
             let mut last_image_index_guard = self_ref.last_image_index.lock().unwrap();
@@ -97,6 +97,24 @@ impl ImageApi {
 
         Either::B(ok(format!("Image has been saved as {}", file_name))) //TODO
     }
+
+    /*
+    fn write_image(file_path:&str, content:Vec<u8>) -> Result<(), Error> {
+        use std::io::BufWriter;
+
+        let mut file = match fs::File::create(file_path) {
+            Ok(file) => file,
+            Err(e) => return Either::A(err(err_msg( CanNotCreateImageFileError::from((file_path, e)) ))),
+        };
+
+        let mut writer = BufWriter::new(file);
+
+        match writer.write_all(content.as_ref()) {
+            Ok(_) => (), //TODO
+            Err(e) => return Either::A(err(err_msg(CanNotWriteImageFileError::from((file_path, e)) ))),
+        }
+    }
+    */
 
     fn is_image_base64(text:&str) -> Option<(ImageFormat, &str)> {
         if text.starts_with("data:image/png;base64,") {
@@ -199,6 +217,8 @@ impl ImageApi {
     }
 
     fn load_image(self_ref:ImageApiRef, name:&str) -> impl Future<Item = Vec<u8>, Error = Error> {
+        use std::io::BufReader;
+
         let file_name = format!("Image_{}.png", name);
         let file_path = format!("files/{}", file_name);
 
@@ -207,27 +227,25 @@ impl ImageApi {
             Err(e) => return Either::A(err(err_msg( CanNotReadImageFileError::from((file_path, e)) ))),
         };
 
-        //TODO BufRead
+        let mut reader = BufReader::new(file);
 
         let mut content = Vec::new();
-        match file.read_to_end(&mut content) {
+        match reader.read_to_end(&mut content) {
             Ok(_) => Either::B(ok(content)),
             Err(e) => Either::A(err(err_msg( CanNotReadImageFileError::from((file_path, e)) ))),
         }
     }
 
-    fn get_images_list(self_ref:ImageApiRef) -> impl Future<Item = Vec<usize>, Error = Error> {
+    pub fn get_images_list(self_ref:ImageApiRef) -> impl Future<Item = Vec<usize>, Error = Error> {
         let last_image_index = {
             let last_image_index_guard = self_ref.last_image_index.lock().unwrap();
 
             *last_image_index_guard
         };
 
-        //let images_list = (0..last_image_index)
-
         let mut images_list = Vec::with_capacity(last_image_index);
 
-        for i in 0..last_image_index {
+        for i in 1..last_image_index {
             images_list.push(i);
         }
 
