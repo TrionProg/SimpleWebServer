@@ -7,6 +7,21 @@
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/image_api/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/image_api/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/image_api/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/image_api/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv_sys/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv_sys/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv_sys/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/opencv_sys/benches" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/image_api/target" />
+      <excludeFolder url="file://$MODULE_DIR$/opencv/target" />
+      <excludeFolder url="file://$MODULE_DIR$/opencv_sys/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

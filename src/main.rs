@@ -7,6 +7,7 @@ extern crate failure;
 #[macro_use]
 extern crate failure_derive;
 
+/*
 use libc::{c_void, c_char, size_t, c_int};
 
 #[repr(C)]
@@ -21,8 +22,8 @@ pub struct cv_return_value_void_X {
 #[link(name = "target/debug/opencv_world340")]
 extern "C"{
     pub fn cvLoadImage(filename: *const c_char, flags: i32) -> *mut c_void;
-    //pub fn cv_imgcodecs_cv_imwrite_String_filename_Mat_img_VectorOfint_params(filename: *const c_char, flags: i32) -> Mat;//*mut c_void;
-    //pub fn imread(filename: *const c_char, flags: i32) -> Mat;//*mut c_void;
+    //pub fn cv_imgcodecs_cv_imwrite_String_filename_Mat_img_VectorOfint_params(filename: *const c_char, flags: i32) -> Mat;// *mut c_void;
+    //pub fn imread(filename: *const c_char, flags: i32) -> Mat;// *mut c_void;
     pub fn cvSaveImage(filename: *const c_char, arr: *const c_void, param: *const c_int) -> c_int;
     //pub fn cv_imgcodecs_cv_imread_String_filename_int_flags(filename: *const c_char, flags: i32) -> cv_return_value_void_X;
     //fn snappy_max_compressed_length(source_length: size_t) -> size_t;
@@ -77,6 +78,22 @@ fn convert() {
 
     }
 }
+*/
+
+fn convert() -> Result<(), Error> {
+    use opencv::image::Image;
+    use opencv::image::Size;
+
+    let rv = Image::open("files/Image_1.png")?;
+
+    let mini = Image::create(Size{width:200, height:200}, 8, 3)?;
+
+    let mini = rv.resize(mini)?;
+
+    mini.save("files/mini.png")?;
+
+    Ok(())
+}
 
 /*
 pub fn imread2(filename:&str, flags: i32) -> Result<Mat,String> {
@@ -101,9 +118,10 @@ pub fn imread2(filename:&str, flags: i32) -> Result<Mat,String> {
 }
 */
 
-
+/*
 pub mod image_api;
 use image_api::ImageApi;
+*/
 
 pub mod image_app;
 use image_app::ImageApp;
@@ -203,7 +221,7 @@ fn main() -> std::io::Result<()> {
     env_logger::init();
 
 
-    convert();
+    //convert().unwrap();
     /*
     match imread2("files/Image_1.png", 1) {
         Ok(_) => {},
@@ -213,7 +231,7 @@ fn main() -> std::io::Result<()> {
 
     println!("Contin");
 
-    let image_api_ref = ImageApi::new_ref();
+    let image_api_ref = image_api::ImageApi::new_ref();
 
     HttpServer::new(move|| {
         let image_app = ImageApp::new(image_api_ref.clone());

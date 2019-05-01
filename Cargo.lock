@@ -636,6 +636,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "image_api"
+version = "0.1.0"
+dependencies = [
+ "actix-web 1.0.0-alpha.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure_derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
+ "opencv 0.1.0",
+ "url 1.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -824,6 +837,24 @@ dependencies = [
 name = "num_cpus"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "opencv"
+version = "0.1.0"
+dependencies = [
+ "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure_derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
+ "opencv_sys 0.1.0",
+]
+
+[[package]]
+name = "opencv_sys"
+version = "0.1.0"
 dependencies = [
  "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1138,13 +1169,13 @@ dependencies = [
  "actix-multipart 0.1.0-alpha.1",
  "actix-rt 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-web 1.0.0-alpha.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure_derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
- "url 1.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "image_api 0.1.0",
+ "opencv 0.1.0",
+ "opencv_sys 0.1.0",
 ]
 
 [[package]]

@@ -10,9 +10,9 @@ use failure::Error;
 
 use actix_web::HttpRequest;
 
-use crate::image_api::ImageApi;
-use crate::image_api::ImageApiRef;
-use crate::image_api::PutImageInput;
+use image_api::ImageApi;
+use image_api::ImageApiRef;
+use image_api::PutImageInput;
 
 #[derive(Clone)]
 pub struct ImageApp {
@@ -200,6 +200,8 @@ impl ImageApp {
                 page.push_str(image_name.as_str());
 
                 let image_tag = format!("<img width=\"400px\" src=\"get_image/{0}\" alt=\"Image {0}\">",image_index);
+                page.push_str(image_tag.as_str());
+                let image_tag = format!("<img width=\"400px\" src=\"get_image/{0}mini\" alt=\"Image {0}mini\">",image_index);
                 page.push_str(image_tag.as_str());
 
                 page.push_str("</div>");

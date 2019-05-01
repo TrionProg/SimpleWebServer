@@ -2,9 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef68c1ed-9c39-4d0c-9e1a-02dffa2282b0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/image_api/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opencv/src/errors.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opencv/src/image.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opencv_sys/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opencv_sys/src/error.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opencv_sys/src/image.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simple_web_server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/simple_web_server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image_app.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/image_app.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -17,28 +25,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="52" column="65" selection-start-line="52" selection-start-column="65" selection-end-line="52" selection-end-column="65" />
+            <state relative-caret-position="95">
+              <caret line="223" column="6" selection-start-line="223" selection-start-column="6" selection-end-line="223" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/image_app.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="213">
+              <caret line="203" column="85" selection-start-line="203" selection-start-column="85" selection-end-line="203" selection-end-column="85" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/image_app.rs">
+        <entry file="file://$PROJECT_DIR$/opencv/src/image.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1620">
-              <caret line="85" column="101" selection-start-line="85" selection-start-column="101" selection-end-line="85" selection-end-column="101" />
-              <folding>
-                <element signature="e#796#848#0" />
-                <element signature="e#2847#3953#0" />
-                <element signature="e#4082#5106#0" />
-                <element signature="e#5186#6056#0" />
-                <element signature="e#6156#6290#0" />
-                <element signature="e#6408#6996#0" />
-              </folding>
+            <state relative-caret-position="-327">
+              <caret line="73" column="20" selection-start-line="73" selection-start-column="20" selection-end-line="73" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -48,24 +57,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="400">
               <caret line="20" column="66" selection-start-line="20" selection-start-column="66" selection-end-line="20" selection-end-column="66" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/image_api.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1249">
-              <caret line="100" column="6" selection-start-line="100" selection-start-column="6" selection-end-line="100" selection-end-column="6" />
-              <folding>
-                <element signature="e#666#746#0" />
-                <element signature="e#932#1834#0" />
-                <element signature="e#2918#3314#0" />
-                <element signature="e#3431#3659#0" />
-                <element signature="e#3760#7443#0" />
-                <element signature="e#7545#7603#0" />
-                <element signature="e#8390#8790#0" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -105,6 +96,8 @@
       <find>Error::new</find>
       <find>create_page</find>
       <find>Error</find>
+      <find>/*</find>
+      <find>ImageApi</find>
     </findStrings>
     <replaceStrings>
       <replace>ImageApi</replace>
@@ -126,10 +119,11 @@
         <option value="$PROJECT_DIR$/html/page_end.html" />
         <option value="$PROJECT_DIR$/html/form.html" />
         <option value="$PROJECT_DIR$/html/page_begin.html" />
-        <option value="$PROJECT_DIR$/src/image_app.rs" />
         <option value="$PROJECT_DIR$/src/image_api.rs" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
+        <option value="$PROJECT_DIR$/opencv/src/image.rs" />
         <option value="$PROJECT_DIR$/src/main.rs" />
+        <option value="$PROJECT_DIR$/src/image_app.rs" />
       </list>
     </option>
   </component>
@@ -240,7 +234,7 @@
     <frame x="-8" y="0" width="1376" height="742" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2857143" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.29483283" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Learn" order="3" />
@@ -262,18 +256,18 @@
       <window_info anchor="right" id="Palette&#9;" order="4" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2773556" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.29483283" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Learn" order="3" />
       <window_info id="Favorites" order="4" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49924013" visible="true" weight="0.32840723" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49924013" visible="true" weight="0.4499179" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32840723" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007599" side_tool="true" weight="0.32840723" />
@@ -364,13 +358,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/html/form.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
@@ -380,16 +367,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/image_api.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1249">
+        <state relative-caret-position="1460">
           <caret line="100" column="6" selection-start-line="100" selection-start-column="6" selection-end-line="100" selection-end-column="6" />
           <folding>
             <element signature="e#666#746#0" />
             <element signature="e#932#1834#0" />
-            <element signature="e#2918#3314#0" />
-            <element signature="e#3431#3659#0" />
-            <element signature="e#3760#7443#0" />
-            <element signature="e#7545#7603#0" />
-            <element signature="e#8390#8790#0" />
           </folding>
         </state>
       </provider>
@@ -401,25 +383,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/image_app.rs">
+    <entry file="file://$PROJECT_DIR$/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1620">
-          <caret line="85" column="101" selection-start-line="85" selection-start-column="101" selection-end-line="85" selection-end-column="101" />
-          <folding>
-            <element signature="e#796#848#0" />
-            <element signature="e#2847#3953#0" />
-            <element signature="e#4082#5106#0" />
-            <element signature="e#5186#6056#0" />
-            <element signature="e#6156#6290#0" />
-            <element signature="e#6408#6996#0" />
-          </folding>
+        <state relative-caret-position="360">
+          <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/opencv/src/image.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-327">
+          <caret line="73" column="20" selection-start-line="73" selection-start-column="20" selection-end-line="73" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="52" column="65" selection-start-line="52" selection-start-column="65" selection-end-line="52" selection-end-column="65" />
+        <state relative-caret-position="95">
+          <caret line="223" column="6" selection-start-line="223" selection-start-column="6" selection-end-line="223" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/image_app.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="203" column="85" selection-start-line="203" selection-start-column="85" selection-end-line="203" selection-end-column="85" />
         </state>
       </provider>
     </entry>

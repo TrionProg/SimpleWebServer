@@ -1,0 +1,16 @@
+[package]
+name = "image_api"
+version = "0.1.0"
+authors = ["trionprog <trionprog@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+futures = "0.1.26"
+failure = "0.1.5"
+failure_derive = "0.1.5"
+
+url = "1.7.2"
+base64 = "0.10.1"
+
+opencv = { version = "0.1.0", path = "../opencv" }
+actix-web = "1.0.0-alpha.4"
