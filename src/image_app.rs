@@ -67,7 +67,8 @@ impl ImageApp {
                             }
                         }
 
-                        app_copy2.create_page(Vec::new(), Vec::new()).then(|page_result|{
+                        //TODO где же asnwers, errors?
+                        app_copy2.create_page(answers, errors).then(|page_result|{
                             match page_result {
                                 Ok(page) => HttpResponse::Ok().content_type("text/html").body(page),
                                 Err(error) => HttpResponse::Ok().content_type("text/html").body(format!("Error: {}",error))
@@ -133,7 +134,7 @@ impl ImageApp {
                 Err(_) => return Either::B(err(err_msg("aaa==")))//TODO
             }
         }else if name.as_str() == "file" {
-            if value.len() > 0 {
+            if value.len() > 0 { //TODO read_field if buffer.len() > 0 {
                 let fut = ImageApi::put_image(api, PutImageInput::Content(value)).map(|answer| Some(answer));
                 Either::A(Either::A(Either::B(fut)))
             }else{
@@ -233,13 +234,13 @@ impl ImageApp {
             let branch = ImageApi::get_image(api, name).then(move |result|{
                 match result {
                     Ok(content) => HttpResponse::Ok().content_type("image/png").body(content),
-                    Err(e) => HttpResponse::Ok().body("error")
+                    Err(e) => HttpResponse::Ok().body("error")//TODO text of error
                 }
             });
 
             Box::new(branch)
         }else{
-            let branch = HttpResponse::Ok().body("empty request");//TODO
+            let branch = HttpResponse::Ok().body("empty request");//TODO text of error
 
             Box::new(ok(branch))
         }

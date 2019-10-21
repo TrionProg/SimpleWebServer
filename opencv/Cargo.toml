@@ -5,7 +5,7 @@ authors = ["trionprog <trionprog@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-futures = "0.1.26"
+futures = "0.1.29"
 failure = "0.1.5"
 failure_derive = "0.1.5"
 

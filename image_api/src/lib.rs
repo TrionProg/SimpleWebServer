@@ -1,3 +1,8 @@
+//#[feature("ssl")]
+//#[feature("ssl")]
+//#![ssl]
+//#[ssl]
+
 #[macro_use]
 extern crate failure_derive;
 

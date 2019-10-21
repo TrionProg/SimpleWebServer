@@ -14,14 +14,15 @@ members = [
 ]
 
 [dependencies]
-futures = "0.1.26"
+futures = "0.1.29"
 failure = "0.1.5"
 failure_derive = "0.1.5"
 
-actix-rt = "0.2.2"
-actix-web = "1.0.0-alpha.4"
-actix-multipart = { path="../actix-web/actix-multipart" }
+actix-rt = "0.2.5"
+actix-web = "1.0.8"
+actix-multipart = "0.1.4"
 env_logger = "0.6"
+ctrlc = "3.1.2"
 
 image_api = { version = "0.1.0", path = "image_api"}
 opencv = { version = "0.1.0", path = "opencv"}
