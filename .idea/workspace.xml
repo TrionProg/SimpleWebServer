@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ef68c1ed-9c39-4d0c-9e1a-02dffa2282b0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/.~lock.documentation.odt#" beforeDir="false" afterPath="$PROJECT_DIR$/doc/.~lock.documentation.odt#" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/documentation.odt" beforeDir="false" afterPath="$PROJECT_DIR$/doc/documentation.odt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/html/form.html" beforeDir="false" afterPath="$PROJECT_DIR$/html/form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image_api/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/image_api/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image_api/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/image_api/src/errors.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image_api/src/image_api.rs" beforeDir="false" afterPath="$PROJECT_DIR$/image_api/src/image_api.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/opencv/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/opencv/src/errors.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/opencv/src/image.rs" beforeDir="false" afterPath="$PROJECT_DIR$/opencv/src/image.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/errors.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/image_app.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/image_app.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-    </list>
+    <list default="true" id="ef68c1ed-9c39-4d0c-9e1a-02dffa2282b0" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,6 +12,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="600">
+              <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/image_api/src/image_api.rs">
           <provider selected="true" editor-type-id="text-editor">
@@ -66,11 +61,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/errors.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1593">
-              <caret line="1" column="45" selection-start-line="1" selection-start-column="45" selection-end-line="1" selection-end-column="45" />
+            <state relative-caret-position="147">
+              <caret line="88" column="27" selection-start-line="88" selection-start-column="27" selection-end-line="88" selection-end-column="27" />
             </state>
           </provider>
         </entry>
@@ -78,8 +73,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Cargo.toml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="20" selection-start-line="20" selection-end-line="20" selection-end-column="18" />
+            <state relative-caret-position="170">
+              <caret line="25" column="1" selection-start-line="25" selection-start-column="1" selection-end-line="25" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -164,18 +159,18 @@
         <option value="$PROJECT_DIR$/html/page_begin.html" />
         <option value="$PROJECT_DIR$/src/image_api.rs" />
         <option value="$PROJECT_DIR$/opencv/Cargo.toml" />
-        <option value="$PROJECT_DIR$/Cargo.toml" />
         <option value="$PROJECT_DIR$/opencv_sys/src/image.rs" />
         <option value="$PROJECT_DIR$/image_api/src/errors.rs" />
         <option value="$PROJECT_DIR$/opencv/src/image.rs" />
         <option value="$PROJECT_DIR$/opencv/src/errors.rs" />
         <option value="$PROJECT_DIR$/src/errors.rs" />
         <option value="$PROJECT_DIR$/src/image_app.rs" />
-        <option value="$PROJECT_DIR$/src/main.rs" />
         <option value="$PROJECT_DIR$/image_api/Cargo.toml" />
         <option value="$PROJECT_DIR$/image_api/src/lib.rs" />
         <option value="$PROJECT_DIR$/image_api/src/image_api.rs" />
         <option value="$PROJECT_DIR$/html/form.html" />
+        <option value="$PROJECT_DIR$/Cargo.toml" />
+        <option value="$PROJECT_DIR$/src/main.rs" />
       </list>
     </option>
   </component>
@@ -532,13 +527,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="68" column="23" selection-start-line="68" selection-start-column="23" selection-end-line="68" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/opencv/src/image.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="982">
@@ -557,13 +545,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
           <caret line="1" column="45" selection-start-line="1" selection-start-column="45" selection-end-line="1" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="20" selection-start-line="20" selection-end-line="20" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -618,8 +599,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/errors.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1593">
-          <caret line="1" column="45" selection-start-line="1" selection-start-column="45" selection-end-line="1" selection-end-column="45" />
+        <state relative-caret-position="147">
+          <caret line="88" column="27" selection-start-line="88" selection-start-column="27" selection-end-line="88" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="25" column="1" selection-start-line="25" selection-start-column="1" selection-end-line="25" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
         </state>
       </provider>
     </entry>
