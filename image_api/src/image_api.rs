@@ -163,31 +163,17 @@ impl ImageApi {
     }
 
     fn download_image(self_ref:ImageApiRef, url:&str) -> impl Future<Item = String, Error = Error> {
-        //use actix_web::client::Client;
-
         let url_string = url.to_string();
 
         use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
         use awc::Connector as SuperConnector;
         use awc::ClientBuilder;
         use std::time::Duration;
-        use std::ops::DerefMut;
-
-        //let method = SslMethod::tls();
-        //method.set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
-
-        let mut builder =  SslConnector::builder(SslMethod::tls()).expect("Unable to build SSL connector!");
-        builder.deref_mut().set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
-
-        let ssl_connector = builder.build();
-
-        //let ssl_connector = SslConnector::builder(SslMethod::tls()).expect("Unable to build SSL connector!").build();
-
 
         let mut ssl_conn_builder = SslConnector::builder(SslMethod::tls()).unwrap();
+        //Не проверять сертификат сервера, почему-то эта проверка как правило фейлится
         ssl_conn_builder.set_verify(SslVerifyMode::NONE);
-        let ssl_conn = ssl_conn_builder.build();
-        //let connector = ClientConnector::with_connector(ssl_conn).start();
+        let ssl_connector = ssl_conn_builder.build();
 
         let connector = SuperConnector::new()
             .ssl(ssl_connector)
@@ -257,190 +243,6 @@ impl ImageApi {
                         Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, format!("{}",e))) )))
                 }
             })
-
-
-        //Def
-        /*
-        awc::Client::new()
-            .get(url) // <- Create request builder
-            .header("User-Agent", "Actix-web")
-            .send() // <- Send http request
-            .then(|result|{
-                match result {
-                    Ok(mut response) => {
-                        if response.status().is_success() {
-                            let mut format = None;
-                            let mut content_length = 0;
-
-                            for (key, val) in response.headers().iter() {
-                                if key == "content-type" {
-                                    if val == "image/png" {
-                                        format = Some(ImageFormat::Png);
-                                    }else if val == "image/jpeg" {
-                                        format = Some(ImageFormat::Jpeg);
-                                    }else{
-                                        return Either::B(err(err_msg(UnsupportedImageFormatError)));
-                                    }
-                                }else if key == "content-length" {
-                                    match std::str::from_utf8(val.as_ref()) {
-                                        Ok(number_string) => {
-                                            match number_string.parse::<usize>() {
-                                                Ok(len) => content_length=1000000,
-                                                Err(_) => return Either::B(err(err_msg( CanNotParseAsNumberError::from((number_string)) )))
-                                            }
-                                        },
-                                        Err(_) => return Either::B(err(err_msg(TextNotUTF8Error)))
-                                    }
-                                }
-                            }
-
-                            match format {
-                                Some(format) => {
-                                    let fut = response.body().limit(content_length).then(|result|{
-                                        match result {
-                                            Ok(bytes) => {
-                                                let mut content = Vec::new();
-                                                content.extend_from_slice(bytes.as_ref());
-
-                                                Either::A(Self::upload_image(self_ref, content))
-                                            },
-                                            Err(e) => Either::B(err(err_msg("can not read body")))
-                                        }
-                                    });
-
-                                    Either::A(fut)
-                                },
-                                None => Either::B(err(err_msg(UnsupportedImageFormatError)))
-                            }
-                        }else{
-                            Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, response.status())) )))
-                        }
-                    },
-                    Err(e) =>
-                        Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, format!("{}",e))) )))
-                }
-            })
-
-        */
-
-            /*
-            .from_err()
-            .and_then(|mut response| {
-                // <- server http response
-                println!("Response: {:?}", response);
-
-                /*
-                // read response body
-                response
-                    .body()
-                    .from_err()
-                    .map(|body| {
-                        println!("Downloaded: {:?} bytes", body.len());
-                        Ok("Received a response!".to_string())
-                    } )
-                */
-
-                Ok("Received a response!".to_string())
-            })
-        */
-
-        /*
-        use openssl::ssl::{SslConnector, SslMethod};
-        use awc::Connector as SuperConnector;
-        use awc::ClientBuilder;
-        use std::time::Duration;
-
-        let ssl_connector = SslConnector::builder(SslMethod::tls()).expect("Unable to build SSL connector!").build();
-
-        let connector = SuperConnector::new()
-            .ssl(ssl_connector)
-            .timeout(Duration::from_secs(5))
-            .finish();
-        let ssl_client = ClientBuilder::new()
-            .connector(connector)
-            .finish();
-
-        ssl_client.get("https://google.com:443")
-            .header("Content-Type", "text/html")
-            .send()
-            .then(|response| {
-            //.map_err(|error| {error})
-            //.and_then(|response| {
-                println!("Response: {:?}", response);
-                Ok("Received a response!".to_string())
-            })
-        */
-        /*
-
-        let mut client = Client::build()
-            .disable_timeout()
-            .max_redirects(30)
-            .header("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36")
-            .finish();
-
-        let url_string = url.to_string();
-
-        client.get(url)
-        //client.get("http://192.168.1.132:8080/get_image/3") // <- Create request builder
-            //.header("User-Agent", "Actix-web")
-            //.timeout(std::time::Duration::new(180, 0))
-            .send() // <- Send http request
-            .then(|result|{
-                match result {
-                    Ok(mut response) => {
-                        if response.status().is_success() {
-                            let mut format = None;
-                            let mut content_length = 0;
-
-                            for (key, val) in response.headers().iter() {
-                                if key == "content-type" {
-                                    if val == "image/png" {
-                                        format = Some(ImageFormat::Png);
-                                    }else if val == "image/jpeg" {
-                                        format = Some(ImageFormat::Jpeg);
-                                    }else{
-                                        return Either::B(err(err_msg(UnsupportedImageFormatError)));
-                                    }
-                                }else if key == "content-length" {
-                                    match std::str::from_utf8(val.as_ref()) {
-                                        Ok(number_string) => {
-                                            match number_string.parse::<usize>() {
-                                                Ok(len) => content_length=1000000,
-                                                Err(_) => return Either::B(err(err_msg( CanNotParseAsNumberError::from((number_string)) )))
-                                            }
-                                        },
-                                        Err(_) => return Either::B(err(err_msg(TextNotUTF8Error)))
-                                    }
-                                }
-                            }
-
-                            match format {
-                                Some(format) => {
-                                    let fut = response.body().limit(content_length).then(|result|{
-                                        match result {
-                                            Ok(bytes) => {
-                                                let mut content = Vec::new();
-                                                content.extend_from_slice(bytes.as_ref());
-
-                                                Either::A(Self::upload_image(self_ref, content))
-                                            },
-                                            Err(e) => Either::B(err(err_msg("can not read body")))
-                                        }
-                                    });
-
-                                    Either::A(fut)
-                                },
-                                None => Either::B(err(err_msg(UnsupportedImageFormatError)))
-                            }
-                        }else{
-                            Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, response.status())) )))
-                        }
-                    },
-                    Err(e) =>
-                        Either::B(err(err_msg( CanNodDownloadByURLError::from((url_string, format!("{}",e))) )))
-                }
-            })
-        */
     }
 
     pub fn get_image(self_ref:ImageApiRef, name:&str) -> Box<Future<Item = Vec<u8>, Error = Error>> {

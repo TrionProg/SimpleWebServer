@@ -60,14 +60,6 @@ impl Image {
 
     pub fn save(&self, path:&str) -> Result<(), Error> {//TODO options
         let result = unsafe {
-            /*
-        c_int p[3];
-        IplImage * img = cvLoadImage("test.jpg");
-
-        p[0] = CV_IMWRITE_JPEG_QUALITY;
-        p[1] = 10;
-        p[2] = 0;
-        */
             opencv_sys::image::cvSaveImage(CString::new(path).unwrap().as_ptr(), self.mat, 0 as *const c_int)
         };
 

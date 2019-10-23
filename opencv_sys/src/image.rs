@@ -17,9 +17,6 @@ pub struct cv_return_value_void_X {
     pub result: *mut c_void
 }
 
-//TODO cvGetErrStatus();
-
-//#[link(name = "opencv_world346", kind = "static")]
 #[link(name = "target/debug/opencv_world340")]
 extern "C"{
     pub fn cvLoadImage(filename: *const c_char, flags: i32) -> Mat;

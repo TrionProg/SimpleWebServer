@@ -23,6 +23,7 @@ actix-web = "1.0.8"
 actix-multipart = "0.1.4"
 env_logger = "0.6"
 ctrlc = "3.1.2"
+openssl-probe = "0.1.2"
 
 image_api = { version = "0.1.0", path = "image_api"}
 opencv = { version = "0.1.0", path = "opencv"}
