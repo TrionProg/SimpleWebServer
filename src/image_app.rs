@@ -7,6 +7,7 @@ use futures::future::{err, ok, Either, IntoFuture};
 use futures::{Future, Stream};
 
 use failure::Error;
+use crate::errors::*;
 
 use actix_web::HttpRequest;
 
@@ -67,7 +68,6 @@ impl ImageApp {
                             }
                         }
 
-                        //TODO где же asnwers, errors?
                         app_copy2.create_page(answers, errors).then(|page_result|{
                             match page_result {
                                 Ok(page) => HttpResponse::Ok().content_type("text/html").body(page),
@@ -89,7 +89,7 @@ impl ImageApp {
             Some(disposition) => {
                 let field_name =match disposition.get_name() {
                     Some(name) => name.to_string(),
-                    None => return Either::A(err(error::ErrorBadGateway("aaa1"))),//TODO
+                    None => return Either::A(err(error::ErrorBadGateway(""))),//TODO
                 };
 
                 let a = field.fold(Vec::new(), move |mut buffer, bytes| {
@@ -120,7 +120,7 @@ impl ImageApp {
 
         use failure::err_msg;
 
-        if name.as_str() == "text" {//TODO to static/const
+        if name.as_str() == "text" {
             match String::from_utf8(value) {
                 Ok(value) => {
                     if value.len() > 0 {
@@ -131,10 +131,10 @@ impl ImageApp {
                         Either::A(Either::B(ok(None)))
                     }
                 },
-                Err(_) => return Either::B(err(err_msg("aaa==")))//TODO
+                Err(_) => return Either::B(err(err_msg(TextNotUTF8Error)))
             }
         }else if name.as_str() == "file" {
-            if value.len() > 0 { //TODO read_field if buffer.len() > 0 {
+            if value.len() > 0 {
                 let fut = ImageApi::put_image(api, PutImageInput::Content(value)).map(|answer| Some(answer));
                 Either::A(Either::A(Either::B(fut)))
             }else{
@@ -218,7 +218,11 @@ impl ImageApp {
         let branch = app.create_page(Vec::new(), Vec::new()).then(|page_result|{
             match page_result {
                 Ok(page) => HttpResponse::Ok().content_type("text/html").body(page),
-                Err(error) => HttpResponse::Ok().content_type("text/html").body(format!("Error: {}",error))
+                Err(error) => {
+                    println!("[Error] {}", error);
+
+                    HttpResponse::Ok().content_type("text/html").body("Сервер сломался, попробуйте позже")
+                }
             }
         });
 
@@ -234,13 +238,17 @@ impl ImageApp {
             let branch = ImageApi::get_image(api, name).then(move |result|{
                 match result {
                     Ok(content) => HttpResponse::Ok().content_type("image/png").body(content),
-                    Err(e) => HttpResponse::Ok().body("error")//TODO text of error
+                    Err(e) => {
+                        println!("Error: {}", e);
+                        HttpResponse::Ok().body("Get Image Error")
+                    }
                 }
             });
 
             Box::new(branch)
         }else{
-            let branch = HttpResponse::Ok().body("empty request");//TODO text of error
+            println!("Error: Empty Request");
+            let branch = HttpResponse::Ok().body("Empty Request");
 
             Box::new(ok(branch))
         }

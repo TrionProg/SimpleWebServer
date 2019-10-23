@@ -1,5 +1,5 @@
 
-#[fail(display = "Text is not valid base64")] //TODO
+#[fail(display = "Text is not valid base64")]
 #[derive(Debug, Fail, Clone)]
 pub struct TextNotBase64Error;
 

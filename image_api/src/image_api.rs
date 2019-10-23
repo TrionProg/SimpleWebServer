@@ -3,13 +3,11 @@ use futures::{future, Future, Stream, Poll, Async};
 use futures::future::{err, ok, Either};
 use failure::Error;
 use failure::err_msg;
-//use actix_web::Error;
 
 use crate::errors::*;
 
 use std::sync::Arc;
 use std::sync::Mutex;
-//use actix_net::service::ServiceExt;
 
 use actix_web::client::{ClientResponse, ClientRequest};
 
@@ -70,10 +68,7 @@ impl ImageApi {
         Box::new(branch)
     }
 
-    //TODO Невстроенная
-    fn upload_image(self_ref:ImageApiRef, content:Vec<u8>) -> impl Future<Item = String, Error = Error> + Send + 'static {
-        //TODO take format of image on upload
-
+    fn upload_image(self_ref:ImageApiRef, content:Vec<u8>) -> Box<Future<Item = String, Error = Error>> {// + Send + 'static
         let index = {
             let mut last_image_index_guard = self_ref.last_image_index.lock().unwrap();
 
@@ -83,7 +78,7 @@ impl ImageApi {
             index
         };
 
-        ok(content).and_then(move |content|{
+        let fut = ok(content).and_then(move |content|{
             let file_name = format!("Image_{}.png", index);
             let file_path = format!("files/{}", file_name);
 
@@ -103,7 +98,9 @@ impl ImageApi {
             let message = format!("Image has been saved as {} and {}", file_name, file_mini_name);
 
             ok(message)
-        })
+        });
+
+        Box::new(fut)
     }
 
     fn write_image(file_path:&str, content:&Vec<u8>) -> Result<(), Error> {
@@ -117,7 +114,7 @@ impl ImageApi {
         let mut writer = BufWriter::new(file);
 
         match writer.write_all(content.as_ref()) {
-            Ok(_) => (), //TODO
+            Ok(_) => (),
             Err(e) => return Err(err_msg(CanNotWriteImageFileError::from((file_path.to_string(), e)) )),
         }
 
@@ -269,8 +266,7 @@ impl ImageApi {
         }
     }
 
-    //TODO невстроенная
-    pub fn get_images_list(self_ref:ImageApiRef) -> impl Future<Item = Vec<usize>, Error = Error> {
+    pub fn get_images_list(self_ref:ImageApiRef) -> Box<Future<Item = Vec<usize>, Error = Error>> {
         let last_image_index = {
             let last_image_index_guard = self_ref.last_image_index.lock().unwrap();
 
@@ -283,6 +279,83 @@ impl ImageApi {
             images_list.push(i);
         }
 
-        ok(images_list)
+        Box::new(ok(images_list))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use serial_test_derive::serial;
+
+    fn default_ok() -> futures::future::FutureResult<(), ()> {
+        Ok(()).into()
+    }
+
+    #[test]
+    fn has_no_image_base64_header() {
+        assert!(super::ImageApi::is_image_base64("dfds434fda").is_none())//No header
+    }
+
+    #[test]
+    fn is_not_image_base64() {
+        use futures::future::{lazy, Future};
+        use actix_rt::System;
+        use awc::Client;
+
+        System::new("test").block_on(lazy(|| {
+            let image_api_ref = super::ImageApi::new_ref();
+
+            super::ImageApi::upload_image_base64(image_api_ref.clone(), "0abcdxyz").then(|result|{
+                assert!(result.is_err());//xyz
+
+                default_ok()
+            })
+        }));
+    }
+
+    //Сделаем тест не параллельным что бы избежать конфликтов за файлы
+    #[test]
+    #[serial]
+    fn download_image_success() {
+        use futures::future::{lazy, Future};
+        use actix_rt::System;
+        use awc::Client;
+        use std::fs::*;
+
+        create_dir("files");
+
+        System::new("test").block_on(lazy(|| {
+            let image_api_ref = super::ImageApi::new_ref();
+
+            super::ImageApi::download_image(image_api_ref.clone(), "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/%D0%A5%D0%B0%D1%80%D1%8C%D0%BA%D0%BE%D0%B2._%D0%93%D0%BE%D1%81%D0%BF%D1%80%D0%BE%D0%BC..JPG/373px-%D0%A5%D0%B0%D1%80%D1%8C%D0%BA%D0%BE%D0%B2._%D0%93%D0%BE%D1%81%D0%BF%D1%80%D0%BE%D0%BC..JPG").then(|result|{
+                remove_file("files");
+
+                let success1 = metadata("files/Image_1.png").is_ok();
+                let success2 = metadata("files/Image_1mini.png").is_ok();
+
+                assert!(result.is_ok());
+
+                assert!(success1);
+                assert!(success2);
+
+                default_ok()
+            })
+        }));
+    }
+
+    #[test]
+    fn write_image() {
+        use std::fs::*;
+
+        create_dir("tmp");
+        let success = super::ImageApi::write_image("tmp/not_image.png", &vec![1,2,3]).is_ok();
+
+        let success2 = metadata("tmp/not_image.png").is_ok();
+
+        remove_file("tmp");
+
+        assert!(success);
+        assert!(success2);
     }
 }

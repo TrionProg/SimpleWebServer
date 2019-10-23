@@ -30,41 +30,6 @@ fn main() {
     use std::sync::mpsc;
     use std::thread;
 
-    use openssl_probe::*;
-    init_ssl_cert_env_vars();
-
-    let dirs = find_certs_dirs();
-
-    for dir in dirs.iter() {
-        println!("OpenSSL_ dir {:?}", dir);
-    }
-
-    let mut result = probe();
-
-    match result.cert_dir {
-        Some(ref dir) => println!("OpenSSL dir {:?}", dir),
-        None => {}
-    }
-
-    match result.cert_file {
-        Some(ref dir) => println!("OpenSSL file {:?}", dir),
-        None => {}
-    }
-
-    /*
-    match probe() {
-        Ok(result) => {
-            match result.cert_dir {
-                Some(ref dir) => println!("OpenSSL dir {}", dir),
-                None => {}
-            }
-        },
-        Err(_) => {}
-    }
-    */
-
-
-
     std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
     env_logger::init();
 

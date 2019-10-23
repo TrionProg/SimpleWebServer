@@ -14,7 +14,6 @@ base64 = "0.10.1"
 
 opencv = { version = "0.1.0", path = "../opencv" }
 actix-web = "1.0.8"
-#awc = "0.2.7"
 
 openssl = "0.10.25"
 
@@ -23,3 +22,8 @@ version = "0.2.7"
 #default-features = false # do not include the default features, and optionally
                          # cherry-pick individual features
 features = ["ssl"]
+
+[dev-dependencies]
+actix-rt = "0.2.5"
+serial_test = "0.2.0"
+serial_test_derive = "0.2.0"

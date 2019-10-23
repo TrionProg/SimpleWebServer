@@ -26,8 +26,6 @@ impl Image {
         if mat==0 as Mat {
             let error = unsafe{opencv_sys::error::cvGetErrStatus()};
 
-            //TODO
-
             bail!(CanNotCreateImage);
         }
 
@@ -38,7 +36,7 @@ impl Image {
         Ok(image)
     }
 
-    pub fn open(path:&str) -> Result<Self, Error> {//TODO options
+    pub fn open(path:&str) -> Result<Self, Error> {
         let mat = unsafe {
             opencv_sys::image::cvLoadImage(CString::new(path).unwrap().as_ptr(), 1)
         };
@@ -46,9 +44,7 @@ impl Image {
         if mat==0 as Mat {
             let error = unsafe{opencv_sys::error::cvGetErrStatus()};
 
-            //TODO
-
-            bail!(CanNotOpenImage);
+            bail!(CanNotOpenImage::new(path.to_string()));
         }
 
         let image = Image {
@@ -58,7 +54,7 @@ impl Image {
         Ok(image)
     }
 
-    pub fn save(&self, path:&str) -> Result<(), Error> {//TODO options
+    pub fn save(&self, path:&str) -> Result<(), Error> {
         let result = unsafe {
             opencv_sys::image::cvSaveImage(CString::new(path).unwrap().as_ptr(), self.mat, 0 as *const c_int)
         };
@@ -66,25 +62,17 @@ impl Image {
         if result==0 {
             let error = unsafe{opencv_sys::error::cvGetErrStatus()};
 
-            //TODO
-
-            bail!(CanNotSaveImage);
+            bail!(CanNotSaveImage::new(path.to_string()));
         }
 
         Ok(())
     }
 
-    pub fn resize(&self, into:Self) -> Result<Self, Error> {//TODO options
+    pub fn resize(&self, into:Self) -> Result<Self, Error> {
         unsafe {
             opencv_sys::image::cvResize(self.mat, into.mat, 1);
         }
 
         Ok(into)
-    }
-}
-
-impl Drop for Image {
-    fn drop(&mut self) {
-        //TODO
     }
 }
