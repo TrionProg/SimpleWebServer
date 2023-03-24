@@ -15,7 +15,7 @@ base64 = "0.10.1"
 opencv = { version = "0.1.0", path = "../opencv" }
 actix-web = "1.0.8"
 
-openssl = "0.10.25"
+openssl = "0.10.48"
 
 [dependencies.awc]
 version = "0.2.7"
